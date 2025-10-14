@@ -6881,7 +6881,7 @@ void wifi_hal_nl80211_wps_pbc(unsigned int ap_index)
     wifi_interface_info_t *interface;
 
     interface = get_interface_by_vap_index(ap_index);
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: Inside wifi_hal_nl80211_wps_pbc().\n", __func__,__LINE__);
     if (interface->u.ap.conf.wps_state == 0) {
         wifi_hal_error_print("%s:%d: WPS is not enabled for interface %s\n", __func__, __LINE__, interface->name);
         return;
@@ -7987,7 +7987,7 @@ int nl80211_create_interface(wifi_radio_info_t *radio, wifi_vap_info_t *vap, wif
     wifi_interface_info_t *intf;
     char ifname[32];
     int ret;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: preparing NL80211_CMD_NEW_INTERFACE using nl80211_create_interface() .\n", __func__,__LINE__);
     msg = nl80211_drv_cmd_msg(g_wifi_hal.nl80211_id, NULL, 0, NL80211_CMD_NEW_INTERFACE);
     if (msg == NULL) {
         return -1;
@@ -8025,7 +8025,7 @@ int nl80211_create_interface(wifi_radio_info_t *radio, wifi_vap_info_t *vap, wif
         return -1;
     }
 #endif
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nl80211_send_and_recv() for wifi_hal_createVAP() API.\n", __func__,__LINE__);
     if ((ret = nl80211_send_and_recv(msg, interface_info_handler, radio, NULL, NULL))) {
         wifi_hal_error_print("%s:%d: Error creating %s interface on dev:%d error: %d (%s)\n", __func__, __LINE__,
             ifname, radio->index, ret, strerror(-ret));
@@ -8209,6 +8209,7 @@ int nl80211_get_scan_results(wifi_interface_info_t *interface)
     int ret;
     wifi_finish_data_t scan_results_data = {};
     enum scan_state_type_e scan_state;
+    wifi_hal_info_print("HAL_API_TEST: Inside nl80211_get_scan_results().\n");
 
     wifi_hal_stats_dbg_print("%s:%d: [SCAN] scan results available for interface '%s'\n", __func__, __LINE__, interface->name);
 
@@ -8218,7 +8219,7 @@ int nl80211_get_scan_results(wifi_interface_info_t *interface)
     if (scan_state != WIFI_SCAN_STATE_STARTED) {
         wifi_hal_stats_dbg_print("%s:%d: [SCAN] received scan results ready not started by us\n", __func__, __LINE__);
     }
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST:preparing NL80211_CMD_GET_SCAN using nl80211_drv_cmd_msg().\n", __func__,__LINE__);
     msg = nl80211_drv_cmd_msg(g_wifi_hal.nl80211_id, interface, NLM_F_DUMP, NL80211_CMD_GET_SCAN);
     if (msg == NULL) {
         pthread_mutex_lock(&interface->scan_state_mutex);
@@ -8230,6 +8231,7 @@ int nl80211_get_scan_results(wifi_interface_info_t *interface)
 
     scan_results_data.arg = interface;
 
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nl80211_send_and_recv() for wifi_hal_getScanResults() API.\n", __func__,__LINE__);
     ret = nl80211_send_and_recv(msg, scan_info_handler, interface, scan_results_handler, &scan_results_data);
     if (ret) {
         pthread_mutex_lock(&interface->scan_state_mutex);
@@ -8267,7 +8269,7 @@ int nl80211_disconnect_sta(wifi_interface_info_t *interface)
 {
     struct nl_msg *msg;
     int ret;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: preparing NL80211_CMD_NEW_DISCONNECT using nl80211_disconnect_sta() .\n", __func__,__LINE__);
     if ((msg = nl80211_drv_cmd_msg(g_wifi_hal.nl80211_id, interface, 0, NL80211_CMD_DISCONNECT)) == NULL) {
         return -1;
     }
@@ -8279,6 +8281,7 @@ int nl80211_disconnect_sta(wifi_interface_info_t *interface)
         ret = nl80211_set_rx_control_port_owner(msg, interface);
     } else {
 #endif
+         wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nl80211_send_and_recv() for wifi_hal_disconnect() API.\n", __func__,__LINE__);
         ret = nl80211_send_and_recv(msg, NULL, &g_wifi_hal, NULL, NULL);
 #ifdef EAPOL_OVER_NL
     }
@@ -8982,7 +8985,7 @@ int nl80211_connect_sta(wifi_interface_info_t *interface)
         (int *)&radio_index);
     wifi_ie_info_t *bss_ie = &interface->bss_elem_ie[radio_index];
     wifi_ie_info_t *beacon_ie = &interface->beacon_elem_ie[radio_index];
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start nl80211_connect_sta().\n", __func__,__LINE__);
     wifi_hal_dbg_print("%s:%d:bssid:%s frequency:%d ssid:%s sta radio:%d for vap radio:%d\n",
         __func__, __LINE__, to_mac_str(backhaul->bssid, bssid_str),
         backhaul->freq, backhaul->ssid, radio_index, vap->radio_index);
@@ -9192,7 +9195,7 @@ int nl80211_connect_sta(wifi_interface_info_t *interface)
     update_eapol_sm_params(interface);
     eapol_sm_notify_portEnabled(interface->u.sta.wpa_sm->eapol, FALSE);
     eapol_sm_notify_portValid(interface->u.sta.wpa_sm->eapol, FALSE);
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: preparing NL80211_CMD_CONNECT in nl80211_connect_sta().\n", __func__,__LINE__);
     if ((msg = nl80211_drv_cmd_msg(g_wifi_hal.nl80211_id, interface, 0, NL80211_CMD_CONNECT)) == NULL) {
         return -1;
     }
@@ -9536,7 +9539,7 @@ int nl80211_start_scan(wifi_interface_info_t *interface, uint flags,
             goto failure;
         }
     }
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nl80211_send_and_recv() for wifi_hal_connect() API.\n", __func__,__LINE__);
     ret = nl80211_send_and_recv(msg, NULL, &g_wifi_hal, NULL, NULL);
     if (ret) {
         wifi_hal_stats_error_print("%s:%d: [SCAN] TRIGGER_SCAN command failed: ret=%d (%s)\n", __func__, __LINE__, ret, strerror(-ret));
@@ -10742,6 +10745,8 @@ int wifi_drv_get_ext_capab(void *priv, enum wpa_driver_if_type type,
     wifi_driver_data_t *drv;
     enum nl80211_iftype nlmode;
     unsigned int i;
+
+    wifi_hal_info_print("%s:%d:HAL_API_TEST:preparing NL80211_CMD_TRIGGER_SCAN using nl80211_start_scan().\n", __func__,__LINE__);
 
     if (!ext_capa || !ext_capa_mask || !ext_capa_len) {
         return -1;
@@ -15550,6 +15555,7 @@ int wifi_supplicant_drv_authenticate(void *priv, struct wpa_driver_auth_params *
         nla_put_u32(msg, NL80211_ATTR_AUTH_TYPE, NL80211_AUTHTYPE_OPEN_SYSTEM);
     }
 
+    wifi_hal_info_print("%s:%d:HAL_API_TEST:calling nl80211_send_and_recv() for wifi_hal_startScan() API.\n", __func__,__LINE__);
     ret = nl80211_send_and_recv(msg, NULL, &g_wifi_hal, NULL, NULL);
     if (ret == 0) {
         return 0;

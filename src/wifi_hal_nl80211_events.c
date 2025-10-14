@@ -621,7 +621,7 @@ static void nl80211_new_scan_results_event(wifi_interface_info_t *interface, str
 {
     int rem;
     struct nlattr *nl;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: Inside nl80211_new_scan_results_event().\n", __func__,__LINE__);
     wifi_hal_stats_dbg_print("%s:%d: [SCAN] new scan results for interface '%s'\n", __func__, __LINE__, interface->name);
     
     if (tb[NL80211_ATTR_SCAN_SSIDS]) {
@@ -631,7 +631,7 @@ static void nl80211_new_scan_results_event(wifi_interface_info_t *interface, str
     } else {
         wifi_hal_stats_info_print("%s:%d: [SCAN] attribute scan_ssids not present\n", __func__, __LINE__);
     }
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: Inside nl80211_new_scan_results_event() calling nl80211_get_scan_results().\n", __func__,__LINE__);
     nl80211_get_scan_results(interface);
 }
 
@@ -1643,6 +1643,7 @@ static void do_process_drv_event(wifi_interface_info_t *interface, int cmd, stru
         break;
 
     case NL80211_CMD_NEW_SCAN_RESULTS:
+       wifi_hal_info_print("HAL_API_TEST: Calling nl80211_new_scan_results_event() from do_process_drv_event.\n");
         nl80211_new_scan_results_event(interface, tb);
         break;
 
@@ -1725,6 +1726,7 @@ int process_global_nl80211_event(struct nl_msg *msg, void *arg)
         gnlh->cmd == NL80211_CMD_TRIGGER_SCAN ||
         gnlh->cmd == NL80211_CMD_SCAN_ABORTED)
     {
+        wifi_hal_info_print("%s:%d: HAL_API_TEST: Calling do_process_drv_event() from process_global_nl80211_event() for any scan cmd.\n", __func__,__LINE__);
         /* Special case for SCAN events - don't drop these event even if the interface is not fully configured */
         interface = get_interface_by_if_index(ifidx);
         if (interface) {

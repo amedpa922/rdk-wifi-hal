@@ -1186,7 +1186,7 @@ int platform_get_keypassphrase_default(char *password, int vap_index)
 {
     char value[BUFFER_LENGTH_WIFIDB] = {0};
     FILE *fp = NULL;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: Inside platform_get_keypassphrase_default().\n", __func__,__LINE__);
     if(is_wifi_hal_vap_private(vap_index)) {
 #if defined(SKYSR300_PORT) || defined(SKYSR213_PORT)
         fp = popen("grep \"WIFIPASSWORD=\" /tmp/serial.txt | cut -d '=' -f 2 | tr -d '\r\n'","r");
@@ -1206,11 +1206,14 @@ int platform_get_keypassphrase_default(char *password, int vap_index)
         }
     } else if(is_wifi_hal_vap_xhs(vap_index)) {
 #if defined(TCXB7_PORT) || defined(TCXB8_PORT) || defined(XB10_PORT) || defined(SCXER10_PORT) || defined(SCXF10_PORT)
+	wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nvram_get_default_xhs_password().\n", __func__,__LINE__);
         return nvram_get_default_xhs_password(password, vap_index);
 #else
+	wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nvram_get_default_password().\n", __func__,__LINE__);
         return nvram_get_default_password(password, vap_index);
 #endif
     } else {
+	wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nvram_get_default_password() 2.\n", __func__,__LINE__);
         return nvram_get_default_password(password, vap_index);
     }
     return -1;
@@ -1260,11 +1263,14 @@ int platform_get_ssid_default(char *ssid, int vap_index){
         }
     } else if(is_wifi_hal_vap_xhs(vap_index)) {
 #if defined(TCXB7_PORT) || defined(TCXB8_PORT) || defined(XB10_PORT) || defined(SCXER10_PORT) || defined(SCXF10_PORT)
+	wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nvram_get_default_xhs_ssid().\n", __func__,__LINE__);
         return nvram_get_default_xhs_ssid(ssid, vap_index);
 #else
+	wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nvram_get_current_ssid().\n", __func__,__LINE__);
         return nvram_get_current_ssid(ssid, vap_index);
 #endif
     } else {
+	wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nvram_get_current_ssid().\n", __func__,__LINE__);
         return nvram_get_current_ssid(ssid, vap_index);
     }
     return -1;

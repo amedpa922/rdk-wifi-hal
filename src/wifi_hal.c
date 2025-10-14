@@ -146,6 +146,7 @@ INT wifi_hal_getHalCapability(wifi_hal_capability_t *hal)
 
     hal->wifi_prop.numRadios = g_wifi_hal.num_radios;
 
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_getHalCapability().\n", __func__,__LINE__);
     /*
      * RDKB-32778: Determine max number of stations for given platform
      *
@@ -388,7 +389,7 @@ INT wifi_hal_getHalCapability(wifi_hal_capability_t *hal)
 
 INT wifi_hal_setApWpsButtonPush(INT ap_index)
 {
-    wifi_hal_info_print("%s:%d: WPS Push Button for radio index %d\n", __func__, __LINE__, ap_index);
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: WPS Push Button for radio index %d\n", __func__, __LINE__, ap_index);
 
     wifi_hal_nl80211_wps_pbc(ap_index);
 
@@ -433,7 +434,7 @@ INT wifi_hal_init()
 #endif
     char *drv_name;
 
-    wifi_hal_info_print("%s:%d: start\n", __func__, __LINE__);
+    wifi_hal_info_print("%s:%d: HAL_API_TEST start\n", __func__, __LINE__);
     if ((drv_name = get_wifi_drv_name()) == NULL) {
         wifi_hal_error_print("%s:%d: driver not found, get drv name failed\n", __func__, __LINE__);
         return RETURN_ERR;
@@ -455,7 +456,7 @@ INT wifi_hal_init()
     pthread_mutex_init(&g_wifi_hal.nl_create_socket_lock, NULL);
     pthread_mutex_init(&g_wifi_hal.steering_data_lock, NULL);
     g_wifi_hal.netlink_socket_map = hash_map_create();
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST in wifi_hal_init() calling init_nl80211().\n", __func__, __LINE__);
     if (init_nl80211() != 0) {
         return RETURN_ERR;
     }
@@ -613,6 +614,7 @@ INT wifi_hal_post_init(wifi_vap_info_map_t *vap_map)
 INT wifi_hal_get_default_ssid(char *ssid, int vap_index)
 {
     platform_ssid_default_t platform_ssid_default_fn;
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: Inside wifi_hal_get_default_ssid.\n", __func__,__LINE__);
     if ((platform_ssid_default_fn = get_platform_ssid_default_fn()) != NULL) {
         wifi_hal_dbg_print("%s:%d: platform ssid init\n", __func__, __LINE__);
         return (platform_ssid_default_fn(ssid, vap_index));
@@ -634,6 +636,7 @@ INT wifi_hal_get_default_country_code(char *code)
 INT wifi_hal_get_default_keypassphrase(char *password, int vap_index)
 {
     platform_keypassphrase_default_t platform_keypassphrase_default_fn;
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_get_default_keypassphrase().\n", __func__,__LINE__);
     if ((platform_keypassphrase_default_fn = get_platform_keypassphrase_default_fn()) != NULL) {
         wifi_hal_dbg_print("%s:%d: platform passphrase init\n", __func__, __LINE__);
         return (platform_keypassphrase_default_fn(password, vap_index));
@@ -763,7 +766,7 @@ INT wifi_hal_setRadioOperatingParameters(wifi_radio_index_t index, wifi_radio_op
 
     RADIO_INDEX_ASSERT(index);
     NULL_PTR_ASSERT(operationParam);
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_setRadioOperatingParameters().\n", __func__,__LINE__);
 #if defined(CONFIG_WIFI_EMULATOR) || defined(CONFIG_WIFI_EMULATOR_EXT_AGENT)
     radio = get_radio_by_rdk_index(index);
     if (radio == NULL) {
@@ -1029,7 +1032,7 @@ try_hostap_config_update:
     }
 
     if (radio->oper_param.countryCode != operationParam->countryCode) {
-        wifi_hal_dbg_print("%s:%d:Set country code:%d\n", __func__, __LINE__, operationParam->countryCode);
+        wifi_hal_dbg_print("%s:%d:HAL_API_TEST Set country code:%d and calling nl80211_set_regulatory_domain().\n", __func__, __LINE__, operationParam->countryCode);
         nl80211_set_regulatory_domain(operationParam->countryCode);
     }
 
@@ -1039,7 +1042,7 @@ try_hostap_config_update:
         wifi_hal_error_print("%s:%d:Failed to update hostap config params\n", __func__, __LINE__);
         goto reload_config;
     }
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nl80211_update_wiphy().\n", __func__,__LINE__);
     if (nl80211_update_wiphy(radio) != 0) {
         wifi_hal_error_print("%s:%d:Failed to update radio\n", __func__, __LINE__);
         goto reload_config;
@@ -1071,7 +1074,7 @@ reload_config:
         wifi_hal_error_print("%s:%d:Failed to update hostap config params, Got into a bad state radioindex : %d\n", __func__, __LINE__, index);
         return RETURN_ERR;
     }
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: calling nl80211_update_wiphy().\n", __func__,__LINE__);
     if (nl80211_update_wiphy(radio) != 0) {
         wifi_hal_error_print("%s:%d:Failed to update radio : %d\n", __func__, __LINE__, index);
         return RETURN_ERR;
@@ -1089,6 +1092,8 @@ INT wifi_hal_connect(INT ap_index, wifi_bss_info_t *bss)
     int best_rssi = -100;
 
     NULL_PTR_ASSERT(bss);
+
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_connect().\n", __func__,__LINE__);
 
     if ((interface = get_interface_by_vap_index(ap_index)) == NULL) {
         wifi_hal_error_print("%s:%d:interface for ap index:%d not found\n", __func__, __LINE__, ap_index);
@@ -1139,7 +1144,7 @@ INT wifi_hal_disconnect(INT ap_index)
 {
     wifi_interface_info_t *interface;
     wifi_vap_info_t *vap;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_disconnect().\n", __func__,__LINE__);
     if ((interface = get_interface_by_vap_index(ap_index)) == NULL) {
         wifi_hal_error_print("%s:%d:interface for ap index:%d not found\n", __func__, __LINE__, ap_index);
         return RETURN_ERR;
@@ -1361,10 +1366,10 @@ INT wifi_hal_createVAP(wifi_radio_index_t index, wifi_vap_info_map_t *map)
 
     RADIO_INDEX_ASSERT(index);
     NULL_PTR_ASSERT(map);
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_createVAP().\n", __func__,__LINE__);
     radio = get_radio_by_rdk_index(index);
     if (radio == NULL) {
-        wifi_hal_error_print("%s:%d: radio index:%d failed not find radio\n", __func__, __LINE__,
+        wifi_hal_error_print("%s:%d: radio index:%d failed not find radio AISH\n", __func__, __LINE__,
             index);
         return RETURN_ERR;
     }
@@ -1728,7 +1733,7 @@ INT wifi_hal_createVAP(wifi_radio_index_t index, wifi_vap_info_map_t *map)
 INT wifi_hal_kickAssociatedDevice(INT ap_index, mac_address_t mac)
 {
     wifi_interface_info_t *interface;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_kickAssociatedDevice().\n", __func__,__LINE__);
     interface  = get_interface_by_vap_index(ap_index);
     if (interface ==  NULL) {
         wifi_hal_error_print("%s:%d: NULL Interface pointer \n", __func__, __LINE__);
@@ -1861,6 +1866,8 @@ INT wifi_hal_getScanResults(wifi_radio_index_t index, wifi_channel_t *channel, w
     unsigned int freq = 0, total_count = 0;
     char country[8];
     wifi_bss_info_t *scan_info, *tmp_bss;
+
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_getScanResults().\n", __func__,__LINE__);
 
     if (!channel || !bss || !num_bss) {
         wifi_hal_error_print("%s:%d:invalid parameters\n", __func__, __LINE__);
@@ -2340,6 +2347,7 @@ INT wifi_hal_startScan(wifi_radio_index_t index, wifi_neighborScanMode_t scan_mo
     ssid_t  ssid_list[8];
     int op_class, freq_num = 0;
 
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_startScan().\n", __func__,__LINE__);
     wifi_hal_stats_dbg_print("%s:%d: index: %d mode: %d dwell time: %d\n", __func__, __LINE__, index,
         scan_mode, dwell_time);
 
@@ -4198,6 +4206,7 @@ failure:
 INT wifi_hal_mgmt_frame_callbacks_register(wifi_receivedMgmtFrame_callback func)
 {
     wifi_device_callbacks_t *callbacks;
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_mgmt_frame_callbacks_register().\n", __func__,__LINE__);
     callbacks = get_hal_device_callbacks();
     if (callbacks == NULL) {
         return RETURN_ERR;
@@ -4210,7 +4219,7 @@ INT wifi_hal_mgmt_frame_callbacks_register(wifi_receivedMgmtFrame_callback func)
 void wifi_hal_newApAssociatedDevice_callback_register(wifi_newApAssociatedDevice_callback func)
 {
     wifi_device_callbacks_t *callbacks;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_newApAssociatedDevice_callback_register().\n", __func__,__LINE__);
     callbacks = get_hal_device_callbacks();
 
     if (callbacks == NULL || callbacks->num_assoc_cbs > MAX_REGISTERED_CB_NUM) {
@@ -4224,7 +4233,7 @@ void wifi_hal_newApAssociatedDevice_callback_register(wifi_newApAssociatedDevice
 void wifi_hal_apDeAuthEvent_callback_register(wifi_device_deauthenticated_callback func)
 {
     wifi_device_callbacks_t *callbacks;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_apDeAuthEvent_callback_register().\n", __func__,__LINE__);
     callbacks = get_hal_device_callbacks();
 
     if (callbacks == NULL || callbacks->num_apDeAuthEvent_cbs > MAX_REGISTERED_CB_NUM) {
@@ -4264,7 +4273,7 @@ void wifi_hal_ap_max_client_rejection_callback_register(wifi_apMaxClientRejectio
 void wifi_hal_apDisassociatedDevice_callback_register(wifi_device_disassociated_callback func)
 {
     wifi_device_callbacks_t *callbacks;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_apDisassociatedDevice_callback_register().\n", __func__,__LINE__);
     callbacks = get_hal_device_callbacks();
 
     if (callbacks == NULL || callbacks->num_disassoc_cbs> MAX_REGISTERED_CB_NUM) {
@@ -4333,7 +4342,7 @@ void wifi_hal_radiusFallback_failover_callback_register(wifi_radiusFallback_fail
 void wifi_hal_staConnectionStatus_callback_register(wifi_staConnectionStatus_callback func)
 {
     wifi_device_callbacks_t *callbacks;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_staConnectionStatus_callback_register().\n", __func__,__LINE__);
     callbacks = get_hal_device_callbacks();
     if (callbacks == NULL) {
         return;
@@ -4347,12 +4356,12 @@ void wifi_hal_staConnectionStatus_callback_register(wifi_staConnectionStatus_cal
 void wifi_hal_scanResults_callback_register(wifi_scanResults_callback func)
 {
     wifi_device_callbacks_t *callbacks;
-
+    wifi_hal_info_print("%s:%d: HAL_API_TEST: start wifi_hal_scanResults_callback_register().\n", __func__,__LINE__);
     callbacks = get_hal_device_callbacks();
     if (callbacks == NULL) {
         return;
     }
-
+    wifi_hal_info_print("HAL_API_TEST:Sets the scan_result_callback function pointer to the user-provided function.\n");
     callbacks->scan_result_callback = func;
 
     return;

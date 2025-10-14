@@ -3429,11 +3429,13 @@ platform_post_init_t 	get_platform_post_init_fn()
 
 platform_ssid_default_t get_platform_ssid_default_fn()
 {
+   wifi_hal_info_print("%s:%d: HAL_API_TEST: get_platform_ssid_default_fn().\n", __func__,__LINE__);
    return driver_info.platform_ssid_default_fn;
 }
 
 platform_keypassphrase_default_t get_platform_keypassphrase_default_fn()
 {
+   wifi_hal_info_print("%s:%d: HAL_API_TEST: get_platform_keypassphrase_default_fn().\n", __func__,__LINE__);
    return driver_info.platform_keypassphrase_default_fn;
 }
 
