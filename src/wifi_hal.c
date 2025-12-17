@@ -1284,6 +1284,46 @@ int get_sta_4addr_status(bool *sta_4addr)
     return json_parse_boolean(EM_CFG_FILE, "sta_4addr_mode_enabled", sta_4addr);
 }
 
+void dump_vap_security_info(const wifi_vap_info_t *vap)
+{
+    const wifi_back_haul_sta_t *sta;
+    const wifi_vap_security_t *sec;
+    const wifi_security_key_t *key;
+
+    if (vap == NULL) {
+        wifi_hal_error_print("%s: vap is NULL\n", __func__);
+        return;
+    }
+
+    /* Only meaningful for STA mode */
+    if (vap->vap_mode != wifi_vap_mode_sta) {
+        wifi_hal_info_print("%s: vap_index %d not in STA mode\n",
+                            __func__, vap->vap_index);
+        return;
+    }
+
+    sta = &vap->u.sta_info;
+    sec = &sta->security;
+
+    wifi_hal_info_print("===== VAP Security Dump =====\n");
+    wifi_hal_info_print("vap_index : %d\n", vap->vap_index);
+    wifi_hal_info_print("vap_name  : %s\n", vap->vap_name);
+
+    /* STA basic info */
+    wifi_hal_info_print("STA enabled : %d\n", sta->enabled);
+    wifi_hal_info_print("STA SSID    : %s\n", sta->ssid);
+
+    /* Security info */
+    wifi_hal_info_print("Security mode : %d\n", sec->mode);
+    wifi_hal_info_print("Encryption    : %d\n", sec->encr);
+
+    /* Print key type only if key is used */
+    key = &sec->u.key;
+    wifi_hal_info_print("Key type      : %d\n", key->type);
+
+    wifi_hal_info_print("=============================\n");
+}
+
 #if defined(SCXER10_PORT) && defined(CONFIG_IEEE80211BE) && defined(KERNEL_NO_320MHZ_SUPPORT)
 INT _wifi_hal_createVAP(wifi_radio_index_t index, wifi_vap_info_map_t *map);
 
@@ -1417,7 +1457,15 @@ INT wifi_hal_createVAP(wifi_radio_index_t index, wifi_vap_info_map_t *map)
             wifi_hal_dbg_print("%s:%d: sta mac is : %s\n", __func__, __LINE__, key);
 #endif //!defined(CONFIG_WIFI_EMULATOR) || !defined(CONFIG_WIFI_EMULATOR_EXT_AGENT)
         }
+        if (vap->vap_mode == wifi_vap_mode_sta){
+            wifi_hal_info_print("%s:%d: Dump of vap:\n", __func__, __LINE__);
+            dump_vap_security_info(vap);
+        }
         memcpy((unsigned char *)&interface->vap_info, (unsigned char *)vap, sizeof(wifi_vap_info_t));
+        if (vap->vap_mode == wifi_vap_mode_sta){
+            wifi_hal_info_print("%s:%d: Dump of vap_info:\n", __func__, __LINE__);
+            dump_vap_security_info(&interface->vap_info);
+        }
         interface_name = wifi_hal_get_interface_name(interface);
 
 #ifdef CONFIG_GENERIC_MLO
